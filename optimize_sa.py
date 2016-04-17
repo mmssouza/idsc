@@ -11,14 +11,19 @@ import amostra_base
 from functools import partial
 from time import time
 from pdist_mt import silhouette
+import atexit
 
 if __name__ == '__main__':
  mt = 2
  dataset = ""
  fout = ""
  dim = -1
- NS = 5
+ NS = 5 
 
+ oc = oct2py.Oct2Py()
+ oc.addpath("common_innerdist")
+ atexit.register(oc.exit)
+  
  try:                                
   opts,args = getopt.getopt(sys.argv[1:], "o:d:", ["mt=","dim=","output=","dataset="])
  except getopt.GetoptError:           
@@ -71,18 +76,15 @@ if __name__ == '__main__':
   n_theta = args[1]
   tt = time() 
   N = len(names)
-  print "Avaliando funcao custo para N = {0}, Nc = {1},Theta = {2}, n_dist = {3}".format(N,Nc,n_theta,n_dist) 
-  oc = oct2py.Oct2Py()
-  oc.addpath("common_innerdist")
+  print "idsc leaves: Avaliando funcao custo para N = {0}, Nc = {1},Theta = {2}, n_dist = {3}".format(N,Nc,n_theta,n_dist) 
   #oc.eval("pkg load statistics;")
+  oc.clear()
   sc,md = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta)
-  oc.exit()
-  
-  print "Calculando Silhouette"
+  #print "Calculando Silhouette"
   cost = float(np.median(1. - silhouette(md,np.array(Y)-1,Nthreads = 2,arg ='dmat')))
-  print
-  print "tempo total: {0} seconds".format(time() - tt)
-  print "cost = {0}".format(cost)
+  #print
+  #print "tempo total: {0} seconds".format(time() - tt)
+  #print "cost = {0}".format(cost)
   return cost
  
  with open(fout,"ab",0) as f:
@@ -97,7 +99,7 @@ if __name__ == '__main__':
     cPickle.dump(i+1,dump_fd)
     cPickle.dump(j,dump_fd)
     dump_fd.close()
-    print i,w.s,w.fit
+    print "idsc leaves: ",i,w.s,w.fit
     cPickle.dump([i,w.fit,w.s],f)
    os.remove("dump_sim_ann.pkl") 
    cPickle.dump(w.hall_of_fame[0],f)
