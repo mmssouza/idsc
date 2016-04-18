@@ -18,7 +18,7 @@ if __name__ == '__main__':
  dataset = ""
  fout = ""
  dim = -1
- NS = 5 
+ NS = 11 
 
  oc = oct2py.Oct2Py()
  oc.addpath("common_innerdist")
