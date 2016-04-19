@@ -7,7 +7,7 @@
 #ifndef COMMON_MATLAB
 #define COMMON_MATLAB
 
-#include "config.h"
+//#include "config.h"
 #include "mex.h"
 /*#include "matrix.h"*/
 

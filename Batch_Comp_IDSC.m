@@ -1,16 +1,16 @@
-function [SC,dismat] = Batch_Comp_IDSC(ifname, n_contsamp, n_dist,n_theta)
+function [SC,dismat] = Batch_Comp_IDSC(ifname, n_contsamp,n_dist,n_theta,num_start,thre,bReflect)
                             
 n_objall=length(ifname);
-num_start	= 8;
+%num_start	= 8;
 search_step	= 1;
 
 %-- shape context parameters
-thre		= .6;
+%thre		= .6;
 %-- shape context parameters
 bTangent	= 1;
 bSmoothCont	= 1;
 bSimplecont	= 1;
-bReflect=0;
+%bReflect=0;
 
 SC	= cell(n_objall,1);
 
