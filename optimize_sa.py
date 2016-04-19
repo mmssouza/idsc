@@ -14,11 +14,11 @@ from pdist_mt import silhouette
 import atexit
 
 if __name__ == '__main__':
- mt = 2
+ mt = 2 
  dataset = ""
  fout = ""
  dim = -1
- NS = 5 
+ NS = 3 
 
  oc = oct2py.Oct2Py()
  oc.addpath("common_innerdist")
@@ -60,31 +60,31 @@ if __name__ == '__main__':
  N,M = 200,3
 
  Head = {'algo':algo,'conf':"T0,alpha,P,L = {0},{1},{2},{3}".format(conf[0],conf[1],conf[2],conf[3]),'dim':dim,"dataset":dataset}
- 
- Y,names = [],[]
- with open(dataset+"/"+"classes.txt","r") as f:
-  cl = cPickle.load(f)
-  nm = amostra_base.amostra(dataset,NS)
-  for k in nm:
-   Y.append(cl[k])
-   names.append(dataset+"/"+k)
   
  def cost_func(args):  
   Ncpu = mt
-  Nc = 100
-  n_dist = args[0]
-  n_theta = args[1]
-  tt = time() 
+  Nc = args[0]
+  n_dist = args[1]
+  n_theta = args[2]
+  num_start = args[3]
+  thre = args[4]
+  tt = time()
+  Y,names = [],[]
+  with open(dataset+"/"+"classes.txt","r") as f:
+    cl = cPickle.load(f)
+    nm = amostra_base.amostra(dataset,NS)
+    for i in nm:
+     Y.append(cl[i])
+     names.append(dataset+"/"+i) 
   N = len(names)
-  print "idsc leaves: Avaliando funcao custo para N = {0}, Nc = {1},Theta = {2}, n_dist = {3}".format(N,Nc,n_theta,n_dist) 
-  #oc.eval("pkg load statistics;")
+  print "idsc leaves: N = {0}, Nc = {1},n_dist = {2}, n_theta = {3},ns = {4},thr = {5}".format(N,Nc,n_dist,n_theta,num_start,thre) 
   oc.clear()
-  sc,md = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta)
-  #print "Calculando Silhouette"
-  cost = float(np.median(1. - silhouette(md,np.array(Y)-1,Nthreads = 2,arg ='dmat')))
+  sc1,md1 = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta,num_start,thre,0)
+  sc2,md2 = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta,num_start,thre,1)
+  md = np.array([np.vstack((i,j)).min(axis = 0) for i,j in zip(md1,md2)])
+  cost = float(np.median(1. - silhouette(md,np.array(Y)-1,Nthreads = Ncpu,arg ='dmat')))
   #print
-  #print "tempo total: {0} seconds".format(time() - tt)
-  #print "cost = {0}".format(cost)
+  print "tempo total: {0} seconds cost = {1}".format(time() - tt,cost)
   return cost
  
  with open(fout,"ab",0) as f:
