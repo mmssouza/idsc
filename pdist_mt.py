@@ -101,7 +101,6 @@ def silhouette(X, cIDX, Nthreads = 8,arg = 'attributes'):
 	 D = pdist_mt(X, Nthreads = Nthreads)   
     else:
 	 D = X
-    print D.shape 
     # indices belonging to each cluster
     kIndices = [np.flatnonzero(cIDX==k) for k in range(K)]
 

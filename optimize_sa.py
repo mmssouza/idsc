@@ -14,15 +14,19 @@ from pdist_mt import silhouette
 import atexit
 
 if __name__ == '__main__':
- mt = 2 
+ mt = 8
  dataset = ""
  fout = ""
  dim = -1
- NS = 3 
-
- oc = oct2py.Oct2Py()
- oc.addpath("common_innerdist")
- atexit.register(oc.exit)
+ NS = 3
+ try:
+  oc = oct2py.Oct2Py()
+  oc.addpath("common_innerdist")
+  atexit.register(oc.exit)
+ except:
+  oc = oct2py.Oct2Py()
+  oc.addpath("common_innerdist")
+  atexit.register(oc.exit)
   
  try:                                
   opts,args = getopt.getopt(sys.argv[1:], "o:d:", ["mt=","dim=","output=","dataset="])
@@ -57,10 +61,11 @@ if __name__ == '__main__':
   nn = 0
   mm = 0  
 
- N,M = 200,3
+ N,M = 400,3
 
  Head = {'algo':algo,'conf':"T0,alpha,P,L = {0},{1},{2},{3}".format(conf[0],conf[1],conf[2],conf[3]),'dim':dim,"dataset":dataset}
-  
+
+
  def cost_func(args):  
   Ncpu = mt
   Nc = args[0]
@@ -68,20 +73,24 @@ if __name__ == '__main__':
   n_theta = args[2]
   num_start = args[3]
   thre = args[4]
-  tt = time()
+
+  tt = time() 
+ 
   Y,names = [],[]
   with open(dataset+"/"+"classes.txt","r") as f:
-    cl = cPickle.load(f)
-    nm = amostra_base.amostra(dataset,NS)
-    for i in nm:
-     Y.append(cl[i])
-     names.append(dataset+"/"+i) 
+   cl = cPickle.load(f)
+   nm = amostra_base.amostra(dataset,NS)
+   for i in nm:
+    Y.append(cl[i])
+    names.append(dataset+"/"+i)
   N = len(names)
-  print "idsc leaves: N = {0}, Nc = {1},n_dist = {2}, n_theta = {3},ns = {4},thr = {5}".format(N,Nc,n_dist,n_theta,num_start,thre) 
-  oc.clear()
-  sc1,md1 = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta,num_start,thre,0)
-  sc2,md2 = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta,num_start,thre,1)
-  md = np.array([np.vstack((i,j)).min(axis = 0) for i,j in zip(md1,md2)])
+  print "idsc mpeg7: N = {0}, Nc = {1}, n_dist = {2}, n_theta = {3}, ns = {4}, thr = {5}".format(N,Nc,n_dist,n_theta,num_start,thre)
+  try:
+   oc.clear()
+   md = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta,num_start,thre)
+  except:
+   oc.clear()
+   md = oc.Batch_Comp_IDSC(names,Nc,n_dist,n_theta,num_start,thre)
   cost = float(np.median(1. - silhouette(md,np.array(Y)-1,Nthreads = Ncpu,arg ='dmat')))
   #print
   print "tempo total: {0} seconds cost = {1}".format(time() - tt,cost)
