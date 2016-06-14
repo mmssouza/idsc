@@ -15,7 +15,7 @@ def set_dim(d):
 
 class sim_ann:
 
- arg_lim = [(30,300),(3,30),(3,30),(1,120),(0.,2.)]
+ arg_lim = [(30,200),(3,30),(3,30),(1,100),(0.01,4.)]
 
  def __gera_s0(self):
   l = []
@@ -34,11 +34,13 @@ class sim_ann:
    dump_fd = open("dump_sim_ann.pkl",'r')
    self.s = cPickle.load(dump_fd)
    self.T = cPickle.load(dump_fd)
+   self.T1 = cPickle.load(dump_fd)
    self.fit = cPickle.load(dump_fd)
    self.hall_of_fame = cPickle.load(dump_fd)
   else:
    self.s = self.__gera_s0()
    self.T = T0
+   self.T1 = 120
    self.fit = self.f(self.s)
    self.hall_of_fame = []   
    for i in scipy.arange(15):
@@ -46,15 +48,16 @@ class sim_ann:
   self.P = P
   self.L = L
   self.alpha = alpha
-  
+  self.alpha1 = 0.986
+
  def Perturba(self,x):
   for i in range(len(x)):
    if scipy.rand() < 0.6:
     aux = x[i]
     if type(aux) == float: 
-     x[i] = aux + 0.2*scipy.randn() 
+     x[i] = aux + math.exp(-1./self.T1)*0.2*scipy.randn() 
     else:
-     delta = int(round(40*scipy.randn()))
+     delta = int(round(math.exp(-1./self.T1)*10*scipy.randn()))
      x[i] = aux+delta         
     if x[i] >= self.arg_lim[i][1]:
      x[i] = self.arg_lim[i][1]
@@ -86,9 +89,11 @@ class sim_ann:
 	  self.hall_of_fame.pop()   
 	break  
   self.T = self.alpha*self.T
+  self.T1 = self.alpha1*self.T1
   dump_fd = open("dump_sim_ann.pkl","wb")
   cPickle.dump(self.s,dump_fd)
   cPickle.dump(self.T,dump_fd)
+  cPickle.dump(self.T1,dump_fd)
   cPickle.dump(self.fit,dump_fd)
   cPickle.dump(self.hall_of_fame,dump_fd)
   dump_fd.close()
